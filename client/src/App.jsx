@@ -8,26 +8,25 @@ import { Routes, Route } from 'react-router-dom';
 
 function App() {
   return (
-    <div style={appStyle}>
-      {/* Header appears on all pages */}
-      <Header />
+    <BrowserRouter>
+      <AuthProvider>  {/* Wrap everything */}
+        <div style={appStyle}>
+          <Header />
+          <main style={mainStyle}>
+            <Routes>
+              {/* Your routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="*" element={<NotFound />} />
 
-      {/* Main content */}
-      <main style={mainStyle}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-
-          {/* 404 Page */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
-
-      {/* Footer appears on all pages */}
-      <Footer />
-    </div>
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </AuthProvider>  {/* Close wrapper */}
+    </BrowserRouter>
   );
 }
 
