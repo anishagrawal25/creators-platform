@@ -9,5 +9,10 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "prop-types": "^15.8.1",
+    "react-router-dom": "^7.13.1"
   }
 }
