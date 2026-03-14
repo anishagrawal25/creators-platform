@@ -1,101 +1,111 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
+// 1. Import the useAuth hook
+import { useAuth } from "../context/AuthContext";
 
-// Function to check if JWT token is expired
-const isTokenExpired = (token) => {
-  if (!token) return true;
-
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    const currentTime = Date.now() / 1000;
-    return payload.exp < currentTime;
-  } catch {
-    return true;
-  }
-};
-
-const Dashboard = () => {
+function Dashboard() {
+  // 2. Grab user, logout, and loading from our new Context
+  const { user, logout, loading } = useAuth();
   const navigate = useNavigate();
 
-  const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-
-  // Check authentication
-  if (!token || isTokenExpired(token)) {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login");
-    return null;
+  // 3. Instead of the manual useEffect, we use the loading state from Context
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", padding: "2rem" }}>
+        Loading...
+      </div>
+    );
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login");
-  };
+  // 4. If there is no user, send them to login automatically
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
 
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
-        <h1>Dashboard</h1>
-        <p>Welcome back, {user.name}!</p>
-        <button onClick={handleLogout}>Logout</button>
+        <h1>Welcome, {user.name}!</h1>
+        {/* 5. Use the logout function from context */}
+        <button onClick={logout} style={logoutButtonStyle}>
+          Logout
+        </button>
       </div>
 
       <div style={contentStyle}>
-        <div style={placeholderStyle}>
-          <h2>Your Dashboard</h2>
+        <div style={cardStyle}>
+          <h2>Your Account</h2>
+          <div style={infoStyle}>
+            <p><strong>Name:</strong> {user.name}</p>
+            <p><strong>Email:</strong> {user.email}</p>
+            <p>
+              <strong>Member Since:</strong>{" "}
+              {user.createdAt
+                ? new Date(user.createdAt).toLocaleDateString()
+                : "N/A"}
+            </p>
+          </div>
+        </div>
 
-          <p><strong>Name:</strong> {user.name}</p>
-          <p><strong>Email:</strong> {user.email}</p>
-
-          <p>This page will display:</p>
-
-          <ul style={listStyle}>
-            <li>Your created content (posts/recipes/workouts)</li>
-            <li>Statistics and analytics</li>
-            <li>Quick actions (create new, edit, delete)</li>
-            <li>Recent activity</li>
+        <div style={cardStyle}>
+          <h2>Dashboard Features</h2>
+          <p>This is your personalized dashboard. Future features will include:</p>
+          <ul>
+            <li>Create and manage your content</li>
+            <li>View your statistics</li>
+            <li>Edit your profile</li>
+            <li>See your activity</li>
           </ul>
-
-          <p style={noteStyle}>
-            This will be built after authentication is implemented
-          </p>
         </div>
       </div>
     </div>
   );
-};
+}
 
+// --- STYLES (Stay exactly the same) ---
 const containerStyle = {
   minHeight: "80vh",
   padding: "2rem",
-};
-
-const headerStyle = {
-  maxWidth: "1200px",
-  margin: "0 auto 2rem",
-};
-
-const contentStyle = {
   maxWidth: "1200px",
   margin: "0 auto",
 };
 
-const placeholderStyle = {
-  backgroundColor: "#f8f9fa",
-  padding: "2rem",
+const headerStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: "2rem",
+  padding: "1rem",
+  backgroundColor: "white",
   borderRadius: "8px",
+  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
 };
 
-const listStyle = {
-  paddingLeft: "1.5rem",
-  marginTop: "1rem",
+const logoutButtonStyle = {
+  padding: "0.5rem 1.5rem",
+  backgroundColor: "#dc3545",
+  color: "white",
+  border: "none",
+  borderRadius: "5px",
+  cursor: "pointer",
+  fontWeight: "500",
 };
 
-const noteStyle = {
+const contentStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+  gap: "2rem",
+};
+
+const cardStyle = {
+  padding: "2rem",
+  backgroundColor: "white",
+  borderRadius: "8px",
+  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+};
+
+const infoStyle = {
   marginTop: "1rem",
-  fontStyle: "italic",
-  color: "#666",
+  lineHeight: "2",
 };
 
 export default Dashboard;

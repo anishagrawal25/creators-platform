@@ -1,21 +1,21 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
-  // Form field state
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
 
-  // UI states
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState('');
 
-  const navigate = useNavigate();
-
-  // Step 8: Input handler
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -24,7 +24,6 @@ const Login = () => {
       [name]: value
     }));
 
-    // Clear field error
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -32,19 +31,16 @@ const Login = () => {
       }));
     }
 
-    // Clear API error
-    if (apiError) {
-      setApiError('');
-    }
+    if (apiError) setApiError('');
   };
 
-  // Step 9: Validation
   const validateForm = () => {
     const newErrors = {};
 
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    } 
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
     }
 
@@ -53,13 +49,12 @@ const Login = () => {
     }
 
     setErrors(newErrors);
+
     return Object.keys(newErrors).length === 0;
   };
 
-  // Step 10: Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setApiError('');
 
     if (!validateForm()) return;
@@ -67,7 +62,8 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
+
+      const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -81,17 +77,13 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Store JWT
-        localStorage.setItem('token', data.token);
 
-        // Store user
-        localStorage.setItem('user', JSON.stringify(data.user));
+        login(data.user, data.token);
 
-        // Clear form
         setFormData({ email: '', password: '' });
 
-        // Redirect
-        navigate('/dashboard');
+        const from = location.state?.from?.pathname || '/dashboard';
+        navigate(from, { replace: true });
 
       } else {
         setApiError(data.message || 'Login failed. Please try again.');
@@ -105,25 +97,19 @@ const Login = () => {
     }
   };
 
-  // Step 11: UI
   return (
     <div style={containerStyle}>
       <div style={formContainerStyle}>
         <h1 style={titleStyle}>Welcome Back</h1>
-        <p style={subtitleStyle}>
-          Login to your Creators Platform account
-        </p>
+        <p style={subtitleStyle}>Login to your Creators Platform account</p>
 
-        {apiError && (
-          <div style={errorMessageStyle}>
-            {apiError}
-          </div>
-        )}
+        {apiError && <div style={errorMessageStyle}>{apiError}</div>}
 
         <form onSubmit={handleSubmit} style={formStyle}>
 
           <div style={fieldStyle}>
             <label htmlFor="email" style={labelStyle}>Email</label>
+
             <input
               type="email"
               id="email"
@@ -133,8 +119,8 @@ const Login = () => {
               placeholder="Enter your email"
               style={errors.email ? inputErrorStyle : inputStyle}
               disabled={isLoading}
-              autoComplete="email"
             />
+
             {errors.email && (
               <span style={errorTextStyle}>{errors.email}</span>
             )}
@@ -142,6 +128,7 @@ const Login = () => {
 
           <div style={fieldStyle}>
             <label htmlFor="password" style={labelStyle}>Password</label>
+
             <input
               type="password"
               id="password"
@@ -151,8 +138,8 @@ const Login = () => {
               placeholder="Enter your password"
               style={errors.password ? inputErrorStyle : inputStyle}
               disabled={isLoading}
-              autoComplete="current-password"
             />
+
             {errors.password && (
               <span style={errorTextStyle}>{errors.password}</span>
             )}
@@ -165,20 +152,19 @@ const Login = () => {
           >
             {isLoading ? 'Logging in...' : 'Login'}
           </button>
+
         </form>
 
         <p style={linkTextStyle}>
-          Don't have an account?{' '}
-          <Link to="/register" style={linkStyle}>
-            Sign up here
-          </Link>
+          Don't have an account? 
+          <Link to="/register" style={linkStyle}> Sign up here</Link>
         </p>
+
       </div>
     </div>
   );
 };
 
-// Step 12: Styles
 const containerStyle = {
   minHeight: '80vh',
   display: 'flex',
