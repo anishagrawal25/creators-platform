@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import api from "../services/api";
 
 const Login = () => {
   const location = useLocation();
@@ -11,6 +12,7 @@ const Login = () => {
     email: '',
     password: ''
   });
+  
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -62,19 +64,13 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: formData.email.trim().toLowerCase(),
-          password: formData.password
-        })
+      const response = await api.post('/api/auth/login', {
+        email,
+        password
       });
+      const data = response.data;
 
-      const data = await response.json();
+     
 
       if (response.ok) {
 
