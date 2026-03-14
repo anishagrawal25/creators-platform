@@ -4,10 +4,17 @@ import bcrypt from 'bcrypt';
 /* ===========================
    Register User
 =========================== */
+/* ===========================
+   Register User
+=========================== */
 const registerUser = async (req, res) => {
   try {
+    // 🔍 DEBUG: See what frontend is sending
+    console.log("Incoming body:", req.body);
+
     const { name, email, password } = req.body || {};
 
+    // ✅ Validate required fields
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -15,6 +22,7 @@ const registerUser = async (req, res) => {
       });
     }
 
+    // ✅ Check if user already exists
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -24,14 +32,17 @@ const registerUser = async (req, res) => {
       });
     }
 
+    // ✅ Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // ✅ Create user
     const user = await User.create({
       name,
       email,
       password: hashedPassword
     });
 
+    // Remove password from response
     user.password = undefined;
 
     res.status(201).json({
@@ -41,6 +52,8 @@ const registerUser = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("Registration Error:", error);
+
     res.status(500).json({
       success: false,
       message: 'Server error during registration',
