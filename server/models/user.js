@@ -24,14 +24,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Password is required'],
       minlength: [6, 'Password must be at least 6 characters'],
-      select: false // Don't return password in queries by default
+      select: false
     }
   },
   { 
-    timestamps: true // Automatically creates createdAt and updatedAt fields
+    timestamps: true
   }
 );
 
-const User = mongoose.model('User', userSchema);
+// ✅ Fix for OverwriteModelError
+const User = mongoose.models.User || mongoose.model('User', userSchema);
 
 export default User;
