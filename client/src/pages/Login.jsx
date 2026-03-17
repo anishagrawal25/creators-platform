@@ -58,33 +58,20 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setApiError('');
-
     if (!validateForm()) return;
-
     setIsLoading(true);
-
     try {
       const response = await api.post('/api/auth/login', {
-        email,
-        password
+        email: formData.email,
+        password: formData.password
       });
       const data = response.data;
-
-     
-
-      if (response.ok) {
-
+      if (response.status === 200) {
         login(data.user, data.token);
-
         setFormData({ email: '', password: '' });
-
         const from = location.state?.from?.pathname || '/dashboard';
         navigate(from, { replace: true });
-
-      } else {
-        setApiError(data.message || 'Login failed. Please try again.');
       }
-
     } catch (error) {
       console.error('Login error:', error);
       setApiError('Unable to connect to server. Please try again.');
@@ -92,6 +79,7 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div style={containerStyle}>

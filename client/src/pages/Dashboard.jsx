@@ -1,6 +1,7 @@
 import { useNavigate, Navigate } from "react-router-dom";
 // 1. Import the useAuth hook
 import { useAuth } from "../context/AuthContext";
+import api from "../services/api";
 
 function Dashboard() {
   // 2. Grab user, logout, and loading from our new Context
@@ -20,6 +21,40 @@ function Dashboard() {
   if (!user) {
     return <Navigate to="/login" />;
   }
+  const fetchUsers = async () => {
+    try {
+      const response = await api.get("/api/users");
+      const users = response.data;
+      console.log(users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  // Update Profile
+  const updateProfile = async () => {
+    try {
+      const response = await api.put("/api/profile", {
+        name: "Anisha",
+        bio: "Full Stack Developer"
+      });
+
+      console.log("Profile updated:", response.data);
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
+  };
+
+  // Delete Post
+  const deletePost = async (id) => {
+    try {
+      await api.delete(`/api/posts/${id}`);
+      console.log("Post deleted");
+    } catch (error) {
+      console.error("Delete failed:", error);
+    }
+  };
+
 
   return (
     <div style={containerStyle}>

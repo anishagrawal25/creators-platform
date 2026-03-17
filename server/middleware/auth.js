@@ -24,7 +24,8 @@ export const protect = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Get user from token (exclude password)
-    req.user = await User.findById(decoded.userId).select('-password');
+    req.user = await User.findById(decoded.id).select('-password');
+    console.log("LOGIN SECRET:", process.env.JWT_SECRET);
 
     if (!req.user) {
       return res.status(401).json({
@@ -36,11 +37,12 @@ export const protect = async (req, res, next) => {
     // Continue to next middleware/route
     next();
     
-  } catch (error) {
-    console.error('Auth middleware error:', error);
-    return res.status(401).json({
-      success: false,
-      message: 'Not authorized, token failed'
-    });
-  }
+  }catch (error) {
+  console.error("JWT ERROR:", error.message);
+
+  return res.status(401).json({
+    success: false,
+    message: error.message
+  });
+}
 };

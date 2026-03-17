@@ -4,6 +4,7 @@ import cors from 'cors';
 import connectDB from './config/database.js';
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js'; // Add this import
+import postRoutes from './routes/postRoutes.js';
 
 dotenv.config();
 connectDB();
@@ -17,6 +18,8 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+app.use('/api/posts', postRoutes);
 
 // Routes
 app.use('/api/users', userRoutes);
